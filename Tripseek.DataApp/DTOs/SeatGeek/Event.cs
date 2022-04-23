@@ -2,8 +2,15 @@
 {
     internal class Event
     {
-        public string Type { get; set; } = string.Empty;
+        public string? Type { get; set; }
         [JsonPropertyName("datetime_utc")]
-        public string DateTimeUtc { get; set; } = string.Empty;
+        public DateTime? DateTimeUtc { get; set; }
+        [JsonPropertyName("enddatetime_utc")]
+        public DateTime? EndTimeUtc { get; set; }
+        public string? Title { get; set; }
+        public Venue? Venue { get; set; }
+        public string? Url { get; set; }
+        public List<Performer>? Performers { get; set; }
+        // nejaka fotka        
     }
 }
