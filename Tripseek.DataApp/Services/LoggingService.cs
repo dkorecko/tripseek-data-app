@@ -15,7 +15,12 @@
         public async static void LogResponse(HttpResponseMessage response)
         {
             var content = await response.Content.ReadAsStringAsync();
-            Log($"Response information: {response}\nBody:\n{content}");
+            Log($"Received response: {response}\nBody:\n{content}");
+        }
+
+        public static void LogShortResponse(HttpResponseMessage response)
+        {
+            Log($"Received response {response.StatusCode} {response.ReasonPhrase}, content length {response.Content.Headers.ContentLength}");
         }
 
         public static void LogException(Exception exception)
