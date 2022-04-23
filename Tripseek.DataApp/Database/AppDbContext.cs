@@ -8,11 +8,11 @@ namespace Tripseek.DataApp.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connectionString = "Server='tripseekdb.mysql.database.azure.com';UserID = 'tripseek';Password='TS2022HackKosice';Database='tripseekdata';SslMode=Required;";
+            var connectionString = ConfigurationManager.Configuration.ConnectionString;
             optionsBuilder.UseMySql(connectionString, ServerVersion.Create(new Version("8.0.0"), Pomelo.EntityFrameworkCore.MySql.Infrastructure.ServerType.MySql), options =>
             {
                 options.EnableRetryOnFailure();
-            });
+            }).EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

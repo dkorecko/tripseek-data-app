@@ -5,8 +5,8 @@ namespace Tripseek.DataApp.Services
     internal class SeatGeekService
     {
         private readonly HttpClient _client;
-        private readonly string _clientId = "MjY2ODg5MDN8MTY1MDcxNTEyMy45NzQxNzM";
-        private readonly string _clientSecret = "c55fe143f21c96b0885ee96cc701d7dc09f58adacd2ede328a5b60ee8743a7d8";
+        private readonly string _clientId = ConfigurationManager.Configuration.SeatGeekClientId;
+        private readonly string _clientSecret = ConfigurationManager.Configuration.SeatGeekClientSecret;
         public SeatGeekService()
         {
             _client = new HttpClient();
@@ -26,34 +26,52 @@ namespace Tripseek.DataApp.Services
             return data.Meta?.Total ?? 0;
         }
 
-        public async Task<List<Event>> FetchAllEventsAsync(int numberOfEvents)
+        public List<Event> FetchAllEvents(int numberOfEvents)
         {
             var result = new List<Event>();
+            List<Task> tasks = new List<Task>();
             const int eventsPerPage = 5000;
             int numberOfPages = (numberOfEvents / eventsPerPage) + 1;
             for (int i=1; i<=numberOfPages; i++)
             {
-                LoggingService.Log($"Fetching events page... {i}/{numberOfPages}");
-                var response = await GetEvents(i, eventsPerPage);
-                result.AddRange(response.Events);
+                tasks.Add(Task.Run(async () =>
+                {
+                    using (var client = new HttpClient())
+                    {
+                        LoggingService.Log($"Fetching events page... {i}/{numberOfPages}");
+                        try
+                        {
+                            var response = await GetEvents(client, i, eventsPerPage);
+                            result.AddRange(response.Events);
+                        }
+                        catch (Exception ex)
+                        {
+                            LoggingService.LogException(ex);
+                            LoggingService.Log("Failed, skipping page.");
+                        }
+                    }
+                }));
+                Thread.Sleep(3000);
             }
+
+            Task.WaitAll(tasks.ToArray());
 
             return result;
         }
 
-        public async Task<GetEventsResponse> GetEvents(int page, int eventsPerPage)
+        public async Task<GetEventsResponse> GetEvents(HttpClient client, int page, int eventsPerPage)
         {
             var path = $"https://api.seatgeek.com/2/events?datetime_utc.gt={DateTime.UtcNow.ToString("yyyy-MM-dd")}&page={page}&per_page={eventsPerPage}&client_id={_clientId}&client_secret={_clientSecret}";
             LoggingService.LogRequest(HttpMethod.Get, path);
-            var response = await _client.GetAsync(path);
+            var response = await client.GetAsync(path);
             response.EnsureSuccessStatusCode();
             LoggingService.LogShortResponse(response);
             var data = JsonMapper.MapToObject<GetEventsResponse>(await response.Content.ReadAsStringAsync());
 
             if (data == null)
-                throw new Exception("Failed to fetch events.");
+                throw new Exception($"Failed to fetch events for page {page}.");
             
-            LoggingService.Log("Successfully fetched events.");
+            LoggingService.Log($"Successfully fetched events for page {page}.");
             return data;
         }
     }

@@ -5,7 +5,7 @@
         private const int MAX_KEY_LENGTH = 38;
         public static DTOs.InternalApi.Event Map(DTOs.SeatGeek.Event seatGeekEvent)
         {
-            string id = HashGenerator.GetHashString(seatGeekEvent.Id.ToString() + seatGeekEvent.Title).Substring(0,MAX_KEY_LENGTH);
+            string id = HashGenerator.GetHashString(seatGeekEvent.Id.ToString() + seatGeekEvent.Url.Substring(10)).Substring(0,MAX_KEY_LENGTH);
             return new DTOs.InternalApi.Event
             {
                 Id = id,
