@@ -31,7 +31,6 @@ namespace Tripseek.DataApp.Services
             var result = new List<Event>();
             const int eventsPerPage = 5000;
             int numberOfPages = (numberOfEvents / eventsPerPage) + 1;
-            numberOfPages = 1;
             for (int i=1; i<=numberOfPages; i++)
             {
                 LoggingService.Log($"Fetching events page... {i}/{numberOfPages}");
