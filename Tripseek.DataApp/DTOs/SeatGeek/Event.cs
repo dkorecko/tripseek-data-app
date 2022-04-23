@@ -2,6 +2,7 @@
 {
     internal class Event
     {
+        public int Id { get; set; }
         public string? Type { get; set; }
         [JsonPropertyName("datetime_utc")]
         public DateTime? DateTimeUtc { get; set; }

@@ -22,8 +22,8 @@ namespace Tripseek.DataApp.Services
             response.EnsureSuccessStatusCode();
             LoggingService.LogShortResponse(response);
             var data = JsonMapper.MapToObject<GetEventsResponse>(await response.Content.ReadAsStringAsync());
-            LoggingService.Log("Number of events: " + data.Meta.Total);
-            return data.Meta.Total;
+            LoggingService.Log("Number of events: " + data.Meta?.Total);
+            return data.Meta?.Total ?? 0;
         }
 
         public async Task<List<Event>> FetchAllEventsAsync(int numberOfEvents)
@@ -31,12 +31,12 @@ namespace Tripseek.DataApp.Services
             var result = new List<Event>();
             const int eventsPerPage = 5000;
             int numberOfPages = (numberOfEvents / eventsPerPage) + 1;
+            numberOfPages = 1;
             for (int i=1; i<=numberOfPages; i++)
             {
                 LoggingService.Log($"Fetching events page... {i}/{numberOfPages}");
                 var response = await GetEvents(i, eventsPerPage);
                 result.AddRange(response.Events);
-                Thread.Sleep(11000);
             }
 
             return result;

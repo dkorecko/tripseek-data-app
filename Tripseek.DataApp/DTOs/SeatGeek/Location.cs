@@ -5,7 +5,7 @@
 
         [JsonPropertyName("lat")]
         public double Latitude { get; set; }
-        [JsonPropertyName("long")]
+        [JsonPropertyName("lon")]
         public double Longitude { get; set; }
     }
 }

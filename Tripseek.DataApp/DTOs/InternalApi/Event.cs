@@ -1,7 +1,13 @@
 ﻿namespace Tripseek.DataApp.DTOs.InternalApi
 {
+    /// <summary>
+    /// Created only by SeatGeekToInternalMapper
+    /// </summary>
     internal class Event
     {
+        [Key]
+        public string Id { get; set; }
+        public int ExternalReference { get; set; }
         public string? Type { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
