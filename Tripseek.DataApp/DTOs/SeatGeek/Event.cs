@@ -10,7 +10,6 @@
         public string? Title { get; set; }
         public Venue? Venue { get; set; }
         public string? Url { get; set; }
-        public List<Performer>? Performers { get; set; }
-        // nejaka fotka        
+        public List<Performer>? Performers { get; set; }    
     }
 }
