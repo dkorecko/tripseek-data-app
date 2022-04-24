@@ -13,5 +13,6 @@
         public string? Url { get; set; }
         public List<Performer>? Performers { get; set; }    
         public double Popularity { get; set; }
+        public string? Description { get; set; }
     }
 }

@@ -25,7 +25,8 @@
                 Type = seatGeekEvent?.Type,
                 ImageUrl = seatGeekEvent?.Performers?.FirstOrDefault()?.ImageLink,
                 Popularity = seatGeekEvent?.Popularity ?? 0,
-                ArtistName = seatGeekEvent?.Performers?.FirstOrDefault()?.Name
+                ArtistName = seatGeekEvent?.Performers?.FirstOrDefault()?.Name,
+                Description = seatGeekEvent?.Description
             };
         }
     }

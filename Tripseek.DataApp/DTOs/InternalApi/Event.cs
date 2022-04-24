@@ -19,5 +19,6 @@
         public double Longitude { get; set; }
         public double Popularity { get; set; }
         public string? ArtistName { get; set; }
+        public string? Description { get; set; }
     }
 }
