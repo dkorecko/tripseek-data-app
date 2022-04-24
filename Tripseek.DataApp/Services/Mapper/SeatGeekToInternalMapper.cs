@@ -5,11 +5,11 @@
         private const int MAX_KEY_LENGTH = 38;
         public static DTOs.InternalApi.Event Map(DTOs.SeatGeek.Event seatGeekEvent)
         {
-            string id = HashGenerator.GetHashString(seatGeekEvent.Id.ToString() + seatGeekEvent.Url.Substring(10)).Substring(0,MAX_KEY_LENGTH);
+            string id = HashGenerator.GetHashString(seatGeekEvent.Id.ToString() + seatGeekEvent?.Url?.Substring(10)).Substring(0,MAX_KEY_LENGTH);
             return new DTOs.InternalApi.Event
             {
                 Id = id,
-                Title = seatGeekEvent.Title,
+                Title = seatGeekEvent?.Title,
                 TicketUrl = seatGeekEvent.Url,
                 StartDate = seatGeekEvent.DateTimeUtc,
                 EndDate = seatGeekEvent.EndTimeUtc,
@@ -18,7 +18,8 @@
                 Latitude = seatGeekEvent?.Venue?.Location?.Latitude ?? 0,
                 Longitude = seatGeekEvent?.Venue?.Location?.Longitude ?? 0,
                 Type = seatGeekEvent?.Type,
-                ImageUrl = seatGeekEvent?.Performers?.FirstOrDefault()?.ImageLink
+                ImageUrl = seatGeekEvent?.Performers?.FirstOrDefault()?.ImageLink,
+                Popularity = seatGeekEvent?.Popularity ?? 0
             };
         }
     }

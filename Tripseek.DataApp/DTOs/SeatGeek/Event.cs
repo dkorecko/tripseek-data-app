@@ -12,5 +12,6 @@
         public Venue? Venue { get; set; }
         public string? Url { get; set; }
         public List<Performer>? Performers { get; set; }    
+        public double Popularity { get; set; }
     }
 }
