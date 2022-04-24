@@ -5,21 +5,24 @@
         private const int MAX_KEY_LENGTH = 38;
         public static DTOs.InternalApi.Event Map(DTOs.SeatGeek.Event seatGeekEvent)
         {
+            if (seatGeekEvent == null)
+                return null;
             string id = HashGenerator.GetHashString(seatGeekEvent.Id.ToString() + seatGeekEvent?.Url?.Substring(10)).Substring(0,MAX_KEY_LENGTH);
             return new DTOs.InternalApi.Event
             {
                 Id = id,
                 Title = seatGeekEvent?.Title,
-                TicketUrl = seatGeekEvent.Url,
-                StartDate = seatGeekEvent.DateTimeUtc,
-                EndDate = seatGeekEvent.EndTimeUtc,
-                ExternalReference = seatGeekEvent.Id,
+                TicketUrl = seatGeekEvent?.Url,
+                StartDate = seatGeekEvent?.DateTimeUtc,
+                EndDate = seatGeekEvent?.EndTimeUtc,
+                ExternalReference = seatGeekEvent?.Id ?? 0,
                 DisplayLocation = seatGeekEvent?.Venue?.DisplayLocation,
                 Latitude = seatGeekEvent?.Venue?.Location?.Latitude ?? 0,
                 Longitude = seatGeekEvent?.Venue?.Location?.Longitude ?? 0,
                 Type = seatGeekEvent?.Type,
                 ImageUrl = seatGeekEvent?.Performers?.FirstOrDefault()?.ImageLink,
-                Popularity = seatGeekEvent?.Popularity ?? 0
+                Popularity = seatGeekEvent?.Popularity ?? 0,
+                ArtistName = seatGeekEvent?.Performers?.FirstOrDefault()?.Name
             };
         }
     }
