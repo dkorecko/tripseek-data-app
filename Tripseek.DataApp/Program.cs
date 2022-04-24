@@ -21,9 +21,14 @@ class Program
                 int eventCount = await seatGeekService.GetEventCount();
                 var seatGeekEvents = seatGeekService.FetchAllEvents(eventCount);
                 LoggingService.Log($"Received {seatGeekEvents.Count} events, mapping to internal API DTOs.");
-                
-                foreach(var seatGeekEvent in seatGeekEvents)
-                    events.Add(SeatGeekToInternalMapper.Map(seatGeekEvent));
+
+                foreach (var seatGeekEvent in seatGeekEvents)
+                {
+                    var mappedEvent = SeatGeekToInternalMapper.Map(seatGeekEvent);
+                    
+                    if(!events.Where(x => x.Id == mappedEvent.Id).Any())
+                        events.Add(mappedEvent);
+                }
             }
             catch (Exception ex)
             {
@@ -32,39 +37,45 @@ class Program
             }
             finally
             {
-                var dbContext = new AppDbContext();
-                var allDbEvents = await dbContext.Events.ToListAsync();
+                List<DataApp.DTOs.InternalApi.Event> allDbEvents = new List<DataApp.DTOs.InternalApi.Event>();
+                using (AppDbContext appDbContext = new AppDbContext())
+                {
+                    allDbEvents = await appDbContext.Events.ToListAsync();
+                }
                 int failed = 0;
 
-                if (!allDbEvents.Any())
+                using(AppDbContext appDbContext = new AppDbContext())
                 {
-                    await dbContext.Events.AddRangeAsync(events);
-                }
-                else
-                {
-                    LoggingService.Log($"Deploying {events.Count} changed events to database...");
-                    foreach (var eventDto in events)
+                    if (!allDbEvents.Any())
                     {
-                        try
+                        await appDbContext.Events.AddRangeAsync(events);
+                    }
+                    else
+                    {
+                        LoggingService.Log($"Deploying {events.Count} changed events to database...");
+                        foreach (var eventDto in events)
                         {
-                            if (allDbEvents.Where(x => x.Id == eventDto.Id).Any())
+                            try
                             {
-                                var targetEvent = allDbEvents.Where(x => x.Id == eventDto.Id).First();
-                                dbContext.Events.Update(targetEvent).CurrentValues.SetValues(eventDto);
+                                if (allDbEvents.Where(x => x.Id == eventDto.Id).Any())
+                                {
+                                    var targetEvent = allDbEvents.Where(x => x.Id == eventDto.Id).First();
+                                    appDbContext.Events.Update(targetEvent).CurrentValues.SetValues(eventDto);
+                                }
+                                else
+                                    await appDbContext.Events.AddAsync(eventDto);
                             }
-                            else
-                                await dbContext.Events.AddAsync(eventDto);
-                        }
-                        catch(Exception ex)
-                        {
-                            LoggingService.LogException(ex);
-                            failed++;
+                            catch(Exception ex)
+                            {
+                                LoggingService.LogException(ex);
+                                failed++;
+                            }
                         }
                     }
+                    LoggingService.Log("Committing changes...");
+                    await appDbContext.SaveChangesAsync();
+                    LoggingService.Log($"Database update successful, {failed} changes failed.");
                 }
-                LoggingService.Log("Committing changes...");
-                await dbContext.SaveChangesAsync();
-                LoggingService.Log($"Database update successful, {failed} changes failed.");
             }
 
             var nextRequestTargetTime = DateTime.UtcNow.AddHours(2);

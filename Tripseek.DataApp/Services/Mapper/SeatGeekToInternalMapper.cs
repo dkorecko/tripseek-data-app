@@ -2,15 +2,18 @@
 {
     internal class SeatGeekToInternalMapper
     {
-        private const int MAX_KEY_LENGTH = 38;
         public static DTOs.InternalApi.Event Map(DTOs.SeatGeek.Event seatGeekEvent)
         {
             if (seatGeekEvent == null)
-                return null;
-            string id = HashGenerator.GetHashString(seatGeekEvent.Id.ToString() + seatGeekEvent?.Url?.Substring(10)).Substring(0,MAX_KEY_LENGTH);
+                return new DTOs.InternalApi.Event
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    StartDate = DateTime.MinValue
+                };
+            
             return new DTOs.InternalApi.Event
             {
-                Id = id,
+                Id = $"seatgeek_{seatGeekEvent?.Id}",
                 Title = seatGeekEvent?.Title,
                 TicketUrl = seatGeekEvent?.Url,
                 StartDate = seatGeekEvent?.DateTimeUtc,
